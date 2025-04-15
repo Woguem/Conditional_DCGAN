@@ -179,7 +179,7 @@ for epoch in range(num_epochs):
         fake_validity = discriminator(fake_imgs.detach(), fake_labels)
         
         gradient_penalty = compute_gradient_penalty(
-            discriminator, real_imgs.data, fake_imgs.data, real_labels.data
+            discriminator, real_imgs.detach(), fake_imgs.detach(), real_labels.detach()
         )
         
         d_loss = -torch.mean(real_validity) + torch.mean(fake_validity) + lambda_gp * gradient_penalty
@@ -187,12 +187,12 @@ for epoch in range(num_epochs):
         optimizer_D.step()
         
         # Train Generator
-        if i % n_critic == 0:
-            optimizer_G.zero_grad()
-            gen_imgs = generator(z, fake_labels)
-            g_loss = -torch.mean(discriminator(gen_imgs, fake_labels))
-            g_loss.backward()
-            optimizer_G.step()
+ 
+        optimizer_G.zero_grad()
+        gen_imgs = generator(z, fake_labels)
+        g_loss = -torch.mean(discriminator(gen_imgs, fake_labels))
+        g_loss.backward()
+        optimizer_G.step()
 
         print(i)
             
